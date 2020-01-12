@@ -27,7 +27,6 @@ WApplication *createApplication(const WEnvironment& env)
 
 int main(int argc, char **argv)
 {
-  // ???  JJK hier kan ik eventueel dafault parameters in-klussen
   return WRun(argc, argv, &createApplication);
 }
 
