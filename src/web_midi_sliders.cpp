@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <string>
+#include <stdlib.h>     // for exit and EXIT_FAILURE
 
 #include "web_midi_sliders.h"
 
@@ -41,13 +42,12 @@ WebMidiSliders::WebMidiSliders(WContainerWidget *root)
     slider->resize(500, 20);
     slider->sliderMoved().connect(this, &WebMidiSliders::sliderMove);
 
+    WText *value = new WText("000");
+    textValues.push_back(value);
 
     layout->addWidget(new WText(label), row, 0, AlignRight | AlignMiddle);
     layout->addWidget(slider, row, 1, AlignCenter | AlignMiddle);
-
-    WText* dus = new WText("000");    
-    textValues.push_back(dus);
-    layout->addWidget(dus, row, 2, AlignLeft | AlignMiddle);
+    layout->addWidget(value, row, 2, AlignLeft | AlignMiddle);
 
     row++; 
 
@@ -56,14 +56,17 @@ WebMidiSliders::WebMidiSliders(WContainerWidget *root)
   // set up ALSA
   if (snd_seq_open(&seq_handle, "default", SND_SEQ_OPEN_DUPLEX, 0) < 0) {
     std::cout <<  "Error opening ALSA sequencer." << std::endl;
+    exit (EXIT_FAILURE);
   }
   if (snd_seq_set_client_name(seq_handle, "WebSliders") < 0) {
     std::cout <<  "Error setting client name" << std::endl;
+    exit (EXIT_FAILURE);
   }
   if ((out_port = snd_seq_create_simple_port(seq_handle, "WebSliders",
               SND_SEQ_PORT_CAP_READ|SND_SEQ_PORT_CAP_SUBS_READ,
               SND_SEQ_PORT_TYPE_APPLICATION)) < 0) {
       std::cout << "Error creating sequencer port." << std::endl;
+      exit (EXIT_FAILURE);
   }
    
 
@@ -86,6 +89,4 @@ void WebMidiSliders::sliderMove(int v)
   snd_seq_ev_set_controller(&ev, 0, slider + 20, value);
   snd_seq_event_output_direct(seq_handle, &ev);
 }
-
-
 
